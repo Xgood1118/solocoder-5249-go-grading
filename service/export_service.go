@@ -1,23 +1,24 @@
 package service
 
 import (
-	"encoding/csv"
+	"archive/zip"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"sync"
 	"time"
 
-	"grading-system/algorithm"
 	"grading-system/model"
 	"grading-system/repository"
 )
 
+const SchoolName = "启明教育培训中心"
+
 type ExportService struct {
-	repo       *repository.Repository
-	exportDir  string
-	mu         sync.Mutex
+	repo      *repository.Repository
+	exportDir string
+	mu        sync.Mutex
 }
 
 func NewExportService(repo *repository.Repository, exportDir string) *ExportService {
@@ -28,8 +29,8 @@ func NewExportService(repo *repository.Repository, exportDir string) *ExportServ
 	}
 }
 
-func (s *ExportService) CreateExportTask(paperID string, exportType string) string {
-	taskID := fmt.Sprintf("export_%d_%s", time.Now().UnixNano(), exportType)
+func (s *ExportService) CreateExportTask(paperID string, exportType string, studentID string) string {
+	taskID := fmt.Sprintf("export_%d_%s_%s", time.Now().UnixNano(), exportType, paperID)
 	task := model.ExportTask{
 		ID:        taskID,
 		Type:      exportType,
@@ -38,12 +39,12 @@ func (s *ExportService) CreateExportTask(paperID string, exportType string) stri
 	}
 	s.repo.SaveExportTask(task)
 
-	go s.processExport(taskID, paperID, exportType)
+	go s.processExport(taskID, paperID, exportType, studentID)
 
 	return taskID
 }
 
-func (s *ExportService) processExport(taskID, paperID, exportType string) {
+func (s *ExportService) processExport(taskID, paperID, exportType, studentID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -64,13 +65,51 @@ func (s *ExportService) processExport(taskID, paperID, exportType string) {
 	var fileName string
 	var err error
 
+	paper, ok := s.repo.GetPaper(paperID)
+	if !ok {
+		task.Status = "failed"
+		s.repo.UpdateExportTask(task)
+		return
+	}
+
+	submissions := s.repo.ListSubmissionsByPaper(paperID)
+	students := s.repo.ListStudents()
+	studentMap := make(map[string]model.Student)
+	for _, st := range students {
+		studentMap[st.ID] = st
+	}
+
+	paperData := PaperExportData{
+		Paper:       paper,
+		Submissions: submissions,
+		Students:    studentMap,
+		SchoolName:  SchoolName,
+	}
+
 	switch exportType {
 	case "excel":
-		fileName, err = s.exportExcel(paperID)
+		fileName, err = ExportExcel(paperData, s.exportDir)
 	case "csv":
-		fileName, err = s.exportCSV(paperID)
+		fileName, err = s.exportCSV(paperData)
 	case "pdf":
-		fileName, err = s.exportPDFSimple(paperID)
+		if studentID != "" {
+			sub, ok := s.repo.GetSubmissionByPaperAndStudent(paperID, studentID)
+			if !ok {
+				task.Status = "failed"
+				s.repo.UpdateExportTask(task)
+				return
+			}
+			stu := studentMap[studentID]
+			stuData := StudentExportData{
+				Paper:      paper,
+				Submission: sub,
+				Student:    stu,
+				SchoolName: SchoolName,
+			}
+			fileName, err = ExportStudentPDF(stuData, s.exportDir)
+		} else {
+			fileName, err = s.exportAllPDFs(paperData)
+		}
 	default:
 		err = fmt.Errorf("不支持的导出类型: %s", exportType)
 	}
@@ -86,46 +125,35 @@ func (s *ExportService) processExport(taskID, paperID, exportType string) {
 	s.repo.UpdateExportTask(task)
 }
 
-func (s *ExportService) exportCSV(paperID string) (string, error) {
-	paper, ok := s.repo.GetPaper(paperID)
-	if !ok {
-		return "", fmt.Errorf("试卷不存在")
-	}
-
-	submissions := s.repo.ListSubmissionsByPaper(paperID)
-	students := s.repo.ListStudents()
-	studentMap := make(map[string]model.Student)
-	for _, st := range students {
-		studentMap[st.ID] = st
-	}
-
-	fileName := fmt.Sprintf("%s_%s_scores.csv", paperID, time.Now().Format("20060102_150405"))
+func (s *ExportService) exportCSV(data PaperExportData) (string, error) {
+	fileName := fmt.Sprintf("%s_成绩表_%s.csv", data.Paper.ID, time.Now().Format("20060102_150405"))
 	filePath := filepath.Join(s.exportDir, fileName)
 
-	file, err := os.Create(filePath)
+	f, err := os.Create(filePath)
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer f.Close()
 
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
+	// 用 UTF-8 BOM 防止 Excel 打开乱码
+	f.WriteString("\xEF\xBB\xBF")
 
-	header := []string{"学生ID", "姓名", "班级", "年级", "总分", "满分", "段位", "状态"}
-	for _, q := range paper.Questions {
-		header = append(header, fmt.Sprintf("第%s题(%s)", q.ID, q.Type))
+	header := "序号,学号,姓名,班级,年级,总分,满分,段位,状态"
+	for _, q := range data.Paper.Questions {
+		header += fmt.Sprintf(",第%s题(%s/%.0f分)", q.ID, q.Type, q.FullScore)
 	}
-	writer.Write(header)
+	header += "\n"
+	f.WriteString(header)
 
-	for _, sub := range submissions {
-		student := studentMap[sub.StudentID]
-		var latestScore float64
-		var level string
+	for idx, sub := range data.Submissions {
+		stu := data.Students[sub.StudentID]
+		var totalScore float64
+		level := ""
 		qsMap := make(map[string]float64)
 
 		if len(sub.ScoreRecords) > 0 {
 			latest := sub.ScoreRecords[len(sub.ScoreRecords)-1]
-			latestScore = latest.TotalScore
+			totalScore = latest.TotalScore
 			for _, qs := range latest.QuestionScores {
 				qsMap[qs.QuestionID] = qs.Score
 			}
@@ -134,84 +162,86 @@ func (s *ExportService) exportCSV(paperID string) (string, error) {
 			level = string(sub.ScoreLevel)
 		}
 
-		row := []string{
-			student.ID,
-			student.Name,
-			student.Class,
-			student.Grade,
-			strconv.FormatFloat(latestScore, 'f', 2, 64),
-			strconv.FormatFloat(paper.TotalScore, 'f', 2, 64),
-			level,
-			string(sub.CurrentStage),
+		row := fmt.Sprintf("%d,%s,%s,%s,%s,%.1f,%.1f,%s,%s",
+			idx+1, stu.ID, stu.Name, stu.Class, stu.Grade,
+			totalScore, data.Paper.TotalScore, level, sub.CurrentStage)
+		for _, q := range data.Paper.Questions {
+			row += fmt.Sprintf(",%.1f", qsMap[q.ID])
 		}
-		for _, q := range paper.Questions {
-			row = append(row, strconv.FormatFloat(qsMap[q.ID], 'f', 2, 64))
-		}
-		writer.Write(row)
+		row += "\n"
+		f.WriteString(row)
 	}
 
 	return fileName, nil
 }
 
-func (s *ExportService) exportExcel(paperID string) (string, error) {
-	return s.exportCSV(paperID)
-}
+func (s *ExportService) exportAllPDFs(data PaperExportData) (string, error) {
+	tempDir := filepath.Join(s.exportDir, fmt.Sprintf("pdf_temp_%d", time.Now().UnixNano()))
+	os.MkdirAll(tempDir, 0755)
+	defer os.RemoveAll(tempDir)
 
-func (s *ExportService) exportPDFSimple(paperID string) (string, error) {
-	paper, ok := s.repo.GetPaper(paperID)
-	if !ok {
-		return "", fmt.Errorf("试卷不存在")
-	}
-
-	submissions := s.repo.ListSubmissionsByPaper(paperID)
-	students := s.repo.ListStudents()
-	studentMap := make(map[string]model.Student)
-	for _, st := range students {
-		studentMap[st.ID] = st
-	}
-
-	fileName := fmt.Sprintf("%s_%s_report.txt", paperID, time.Now().Format("20060102_150405"))
-	filePath := filepath.Join(s.exportDir, fileName)
-
-	content := fmt.Sprintf("=== %s 成绩报告 ===\n\n", paper.Name)
-	content += fmt.Sprintf("科目: %s\n", paper.Subject)
-	content += fmt.Sprintf("满分: %.1f\n\n", paper.TotalScore)
-	content += "----------------------------------------\n\n"
-
-	for _, sub := range submissions {
-		if sub.CurrentStage != model.StageFinished {
-			continue
+	for _, sub := range data.Submissions {
+		stu := data.Students[sub.StudentID]
+		stuData := StudentExportData{
+			Paper:      data.Paper,
+			Submission: sub,
+			Student:    stu,
+			SchoolName: data.SchoolName,
 		}
-		student := studentMap[sub.StudentID]
-		content += fmt.Sprintf("学生: %s (%s)\n", student.Name, student.Class)
-		content += fmt.Sprintf("分数: %.1f / %.1f\n", sub.FinalScore, paper.TotalScore)
-		content += fmt.Sprintf("段位: %s\n", sub.ScoreLevel)
-		content += "--- 题目明细 ---\n"
-		if len(sub.ScoreRecords) > 0 {
-			latest := sub.ScoreRecords[len(sub.ScoreRecords)-1]
-			for _, qs := range latest.QuestionScores {
-				qTitle := qs.QuestionID
-				for _, q := range paper.Questions {
-					if q.ID == qs.QuestionID {
-						qTitle = q.Title
-						break
-					}
-				}
-				content += fmt.Sprintf("  %s: %.1f / %.1f\n", qTitle, qs.Score, qs.FullScore)
-			}
-			if latest.Comment != "" {
-				content += fmt.Sprintf("教师评语: %s\n", latest.Comment)
-			}
+		_, err := ExportStudentPDF(stuData, tempDir)
+		if err != nil {
+			return "", err
 		}
-		content += "\n"
 	}
 
-	err := os.WriteFile(filePath, []byte(content), 0644)
+	zipName := fmt.Sprintf("%s_学生成绩单_批量_%s.zip", data.Paper.ID, time.Now().Format("20060102_150405"))
+	zipPath := filepath.Join(s.exportDir, zipName)
+
+	err := zipDirectory(tempDir, zipPath)
 	if err != nil {
 		return "", err
 	}
 
-	return fileName, nil
+	return zipName, nil
+}
+
+func zipDirectory(sourceDir, zipFile string) error {
+	archive, err := os.Create(zipFile)
+	if err != nil {
+		return err
+	}
+	defer archive.Close()
+
+	zipWriter := zip.NewWriter(archive)
+	defer zipWriter.Close()
+
+	files, err := os.ReadDir(sourceDir)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		srcPath := filepath.Join(sourceDir, file.Name())
+		srcFile, err := os.Open(srcPath)
+		if err != nil {
+			return err
+		}
+		defer srcFile.Close()
+
+		w, err := zipWriter.Create(file.Name())
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(w, srcFile)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *ExportService) GetExportTask(taskID string) (model.ExportTask, bool) {
@@ -220,16 +250,4 @@ func (s *ExportService) GetExportTask(taskID string) (model.ExportTask, bool) {
 
 func (s *ExportService) GetExportFilePath(fileName string) string {
 	return filepath.Join(s.exportDir, fileName)
-}
-
-func (s *ExportService) GetLatestScoreRecord(sub model.PaperSubmission) *model.ScoreRecord {
-	if len(sub.ScoreRecords) == 0 {
-		return nil
-	}
-	latest := sub.ScoreRecords[len(sub.ScoreRecords)-1]
-	return &latest
-}
-
-func (s *ExportService) CalculateLevel(score float64, fullScore float64) model.ScoreLevel {
-	return algorithm.CalculateScoreLevel(score, fullScore)
 }

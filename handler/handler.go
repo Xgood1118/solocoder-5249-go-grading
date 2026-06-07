@@ -171,18 +171,20 @@ func (h *Handler) UnlockSubmission(c *gin.Context) {
 }
 
 type ExportRequest struct {
-	PaperID string `json:"paper_id"`
-	Type    string `json:"type"`
+	PaperID   string `json:"paper_id"`
+	Type      string `json:"type"`
+	StudentID string `json:"student_id"`
 }
 
 func (h *Handler) CreateExport(c *gin.Context) {
 	var req ExportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		req.PaperID = c.Query("paper_id")
-		req.Type = c.DefaultQuery("type", "csv")
+		req.Type = c.DefaultQuery("type", "excel")
+		req.StudentID = c.Query("student_id")
 	}
 
-	taskID := h.exportService.CreateExportTask(req.PaperID, req.Type)
+	taskID := h.exportService.CreateExportTask(req.PaperID, req.Type, req.StudentID)
 	c.JSON(http.StatusOK, gin.H{"task_id": taskID, "status": "pending"})
 }
 

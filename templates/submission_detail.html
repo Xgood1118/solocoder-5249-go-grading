@@ -104,7 +104,8 @@
                     <div class="meta">{{.Student.Class}} · {{.Student.Grade}} · 学号 {{.Student.ID}}</div>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:24px;">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <button class="btn btn-secondary" style="padding:8px 16px; font-size:13px;" onclick="exportPDF()">📄 导出成绩单</button>
                 <span class="stage-badge stage-{{.Submission.CurrentStage}}">
                     {{if eq .Submission.CurrentStage "initial"}}待初评
                     {{else if eq .Submission.CurrentStage "review"}}待复核
@@ -308,6 +309,39 @@
 
         function saveDraft() {
             alert('草稿已保存（演示版本）');
+        }
+
+        function exportPDF() {
+            const paperId = '{{.Paper.ID}}';
+            const studentId = '{{.Student.ID}}';
+            fetch('/api/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paper_id: paperId, type: 'pdf', student_id: studentId })
+            }).then(r => r.json()).then(data => {
+                if (data.task_id) {
+                    checkExportStatus(data.task_id);
+                }
+            });
+        }
+
+        function checkExportStatus(taskId) {
+            let count = 0;
+            const check = () => {
+                fetch('/api/export/' + taskId).then(r => r.json()).then(task => {
+                    if (task.status === 'completed') {
+                        window.location.href = '/api/export/' + taskId + '/download';
+                    } else if (task.status === 'failed') {
+                        alert('导出失败');
+                    } else if (count < 60) {
+                        count++;
+                        setTimeout(check, 500);
+                    } else {
+                        alert('导出时间较长，请稍后再试');
+                    }
+                });
+            };
+            setTimeout(check, 300);
         }
     </script>
 </body>

@@ -53,7 +53,13 @@
         .tab { padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 14px; background: #edf2f7; color: #718096; border: none; font-weight: 500; }
         .tab.active { background: #667eea; color: white; }
         .empty { text-align: center; padding: 48px; color: #a0aec0; font-size: 14px; }
-        .export-bar { display: flex; gap: 10px; align-items: center; }
+        .export-bar { display: flex; gap: 8px; align-items: center; }
+        .export-dropdown { position: relative; }
+        .export-dropdown-menu { position: absolute; top: 100%; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); padding: 6px; min-width: 180px; z-index: 100; display: none; }
+        .export-dropdown-menu.show { display: block; }
+        .export-item { padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; color: #4a5568; }
+        .export-item:hover { background: #edf2f7; }
+        .export-item .icon { margin-right: 8px; }
         .level-badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
         .level-excellent { background: #c6f6d5; color: #276749; }
         .level-good { background: #bee3f8; color: #2b6cb0; }
@@ -100,7 +106,20 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <h3 class="section-title" style="margin-bottom:0;"><span class="icon">📝</span>答卷列表</h3>
                 <div class="export-bar">
-                    <button class="btn btn-primary" onclick="exportCSV()">📥 导出成绩</button>
+                    <div class="export-dropdown">
+                        <button class="btn btn-primary" onclick="toggleExportMenu()">📥 导出成绩 ▾</button>
+                        <div class="export-dropdown-menu" id="export-menu">
+                            <div class="export-item" onclick="doExport('excel')">
+                                <span class="icon">📊</span>Excel 成绩表（教务处）
+                            </div>
+                            <div class="export-item" onclick="doExport('csv')">
+                                <span class="icon">📄</span>CSV 成绩表
+                            </div>
+                            <div class="export-item" onclick="doExport('pdf')">
+                                <span class="icon">📑</span>批量学生成绩单（PDF）
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="tabs">
@@ -166,12 +185,25 @@
             });
         }
 
-        function exportCSV() {
+        function toggleExportMenu() {
+            const menu = document.getElementById('export-menu');
+            menu.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('export-menu');
+            if (!menu.contains(e.target) && !e.target.closest('.export-dropdown')) {
+                menu.classList.remove('show');
+            }
+        });
+
+        function doExport(type) {
             const paperId = '{{.Paper.ID}}';
+            document.getElementById('export-menu').classList.remove('show');
             fetch('/api/export', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ paper_id: paperId, type: 'csv' })
+                body: JSON.stringify({ paper_id: paperId, type: type })
             }).then(r => r.json()).then(data => {
                 if (data.task_id) {
                     checkExportStatus(data.task_id);
@@ -187,15 +219,15 @@
                         window.location.href = '/api/export/' + taskId + '/download';
                     } else if (task.status === 'failed') {
                         alert('导出失败');
-                    } else if (count < 30) {
+                    } else if (count < 60) {
                         count++;
-                        setTimeout(check, 500);
+                        setTimeout(check, 800);
                     } else {
-                        alert('导出超时，请稍后在导出列表中查看');
+                        alert('导出时间较长，请稍后在导出列表中查看');
                     }
                 });
             };
-            setTimeout(check, 300);
+            setTimeout(check, 500);
         }
     </script>
 </body>
