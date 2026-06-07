@@ -1,0 +1,313 @@
+{
+  "id": "sub_005",
+  "paper_id": "paper_midterm_2026q2",
+  "student_id": "S005",
+  "answers": [
+    {
+      "question_id": "q1",
+      "content": "C"
+    },
+    {
+      "question_id": "q2",
+      "content": "B"
+    },
+    {
+      "question_id": "q3",
+      "content": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "question_id": "q4",
+      "content": [
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "question_id": "q5",
+      "content": [
+        "叶绿体",
+        "液泡"
+      ]
+    },
+    {
+      "question_id": "q6",
+      "content": [
+        "方向性",
+        "连续性"
+      ]
+    },
+    {
+      "question_id": "q7",
+      "content": false
+    },
+    {
+      "question_id": "q8",
+      "content": true
+    },
+    {
+      "question_id": "q9",
+      "content": "流动镶嵌模型的主要内容：磷脂双分子层构成膜的基本支架，蛋白质分子有的镶在磷脂双分子层表面，有的部分或全部嵌入磷脂双分子层中，有的贯穿于整个磷脂双分子层。磷脂双分子层是轻油般的流体，具有流动性。大多数蛋白质分子也是可以运动的。"
+    },
+    {
+      "question_id": "q10",
+      "content": "光合作用与呼吸作用的区别：1.场所不同，光合作用在叶绿体，呼吸作用主要在线粒体；2.条件不同，光合作用需要光，呼吸作用有光无光都能进行；3.物质转变不同，光合作用合成有机物储存能量，呼吸作用分解有机物释放能量。两者的联系：光合作用为呼吸作用提供有机物和氧气，呼吸作用为光合作用提供二氧化碳和水，它们相互依存。在生态系统碳循环中，生产者通过光合作用将大气中的二氧化碳固定为有机物中的碳，生物通过呼吸作用将有机物中的碳以二氧化碳形式释放回大气，完成碳循环。"
+    },
+    {
+      "question_id": "q11",
+      "content": "该实验证明了加热杀死的S型细菌中存在某种转化因子，能将R型细菌转化为S型细菌。实验原理：S型肺炎双球菌有毒性，会使小鼠患败血症死亡；R型细菌无毒性。将加热杀死的S型菌与活的R型菌混合后注射到小鼠体内，小鼠死亡，并从死亡小鼠体内分离出活的S型菌，说明R型菌被转化为了S型菌。这一实验为证明DNA是遗传物质奠定了基础。"
+    },
+    {
+      "question_id": "q12",
+      "content": "细胞分化是指在个体发育过程中，由一个或一种细胞增殖产生的后代，在形态、结构和生理功能上发生稳定性差异的过程。细胞分化的特点：1.持久性：贯穿于生物体整个生命进程中；2.稳定性和不可逆性：一般来说，分化了的细胞将一直保持分化后的状态；3.普遍性：是生物界普遍存在的生命现象。细胞分化的实质是基因的选择性表达。"
+    },
+    {
+      "question_id": "q13",
+      "content": "A"
+    }
+  ],
+  "current_stage": "finished",
+  "score_records": [
+    {
+      "id": "score_sub_005_initial",
+      "stage": "initial",
+      "grader": "system",
+      "total_score": 72.40571160570714,
+      "question_scores": [
+        {
+          "question_id": "q1",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q2",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q3",
+          "score": 6,
+          "full_score": 6
+        },
+        {
+          "question_id": "q4",
+          "score": 6,
+          "full_score": 6
+        },
+        {
+          "question_id": "q5",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q6",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q7",
+          "score": 3,
+          "full_score": 3
+        },
+        {
+          "question_id": "q8",
+          "score": 3,
+          "full_score": 3
+        },
+        {
+          "question_id": "q9",
+          "score": 6.666666666666666,
+          "full_score": 10,
+          "comment": "关键词覆盖率: 67%"
+        },
+        {
+          "question_id": "q10",
+          "score": 11.354885057471265,
+          "full_score": 15,
+          "comment": "关键词覆盖率: 78%, 相似度: 58%, 答案长度: 226字"
+        },
+        {
+          "question_id": "q11",
+          "score": 11.527017024426351,
+          "full_score": 15,
+          "comment": "关键词覆盖率: 86%, 相似度: 59%, 答案长度: 157字"
+        },
+        {
+          "question_id": "q12",
+          "score": 6.857142857142857,
+          "full_score": 8,
+          "comment": "关键词覆盖率: 86%"
+        },
+        {
+          "question_id": "q13",
+          "score": 2,
+          "full_score": 2
+        }
+      ],
+      "comment": "系统自动初评",
+      "timestamp": "2026-06-07T16:47:15.7368752+08:00"
+    },
+    {
+      "id": "score_sub_005_review_1",
+      "stage": "review",
+      "grader": "teacher_zhang",
+      "total_score": 77,
+      "question_scores": [
+        {
+          "question_id": "q1",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q2",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q3",
+          "score": 6,
+          "full_score": 6
+        },
+        {
+          "question_id": "q4",
+          "score": 6,
+          "full_score": 6
+        },
+        {
+          "question_id": "q5",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q6",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q7",
+          "score": 3,
+          "full_score": 3
+        },
+        {
+          "question_id": "q8",
+          "score": 3,
+          "full_score": 3
+        },
+        {
+          "question_id": "q9",
+          "score": 9,
+          "full_score": 10,
+          "comment": "????,???????"
+        },
+        {
+          "question_id": "q10",
+          "score": 13,
+          "full_score": 15,
+          "comment": "????,????"
+        },
+        {
+          "question_id": "q11",
+          "score": 12,
+          "full_score": 15,
+          "comment": "????"
+        },
+        {
+          "question_id": "q12",
+          "score": 7,
+          "full_score": 8,
+          "comment": "????"
+        },
+        {
+          "question_id": "q13",
+          "score": 2,
+          "full_score": 2
+        }
+      ],
+      "comment": "??????,????!",
+      "timestamp": "2026-06-07T16:49:59.43369+08:00"
+    },
+    {
+      "id": "score_sub_005_final_2",
+      "stage": "final",
+      "grader": "teacher_li",
+      "total_score": 78,
+      "question_scores": [
+        {
+          "question_id": "q1",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q2",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q3",
+          "score": 6,
+          "full_score": 6
+        },
+        {
+          "question_id": "q4",
+          "score": 6,
+          "full_score": 6
+        },
+        {
+          "question_id": "q5",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q6",
+          "score": 4,
+          "full_score": 4
+        },
+        {
+          "question_id": "q7",
+          "score": 3,
+          "full_score": 3
+        },
+        {
+          "question_id": "q8",
+          "score": 3,
+          "full_score": 3
+        },
+        {
+          "question_id": "q9",
+          "score": 9,
+          "full_score": 10
+        },
+        {
+          "question_id": "q10",
+          "score": 13.5,
+          "full_score": 15
+        },
+        {
+          "question_id": "q11",
+          "score": 12.5,
+          "full_score": 15
+        },
+        {
+          "question_id": "q12",
+          "score": 7,
+          "full_score": 8
+        },
+        {
+          "question_id": "q13",
+          "score": 2,
+          "full_score": 2
+        }
+      ],
+      "comment": "????,??????????!",
+      "timestamp": "2026-06-07T16:50:26.4473771+08:00"
+    }
+  ],
+  "score_level": "良好",
+  "final_score": 78,
+  "locked_by": "teacher_li",
+  "locked_at": "2026-06-07T16:50:26.0883145+08:00",
+  "submitted_at": "2026-06-01T10:20:00Z"
+}

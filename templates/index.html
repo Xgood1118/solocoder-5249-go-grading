@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动评分系统 - 试卷列表</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f7fa; color: #333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 32px; }
+        .header h1 { font-size: 24px; font-weight: 600; }
+        .header p { opacity: 0.9; margin-top: 4px; font-size: 14px; }
+        .container { max-width: 1000px; margin: 32px auto; padding: 0 24px; }
+        .page-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #2d3748; }
+        .paper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .paper-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; }
+        .paper-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .paper-card h3 { font-size: 18px; color: #2d3748; margin-bottom: 8px; }
+        .paper-card .subject { display: inline-block; background: #e9d8fd; color: #6b46c1; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 12px; }
+        .paper-card .score { color: #718096; font-size: 14px; }
+        .paper-card .questions-count { color: #a0aec0; font-size: 12px; margin-top: 4px; }
+        .footer { text-align: center; color: #a0aec0; font-size: 12px; padding: 24px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 K12 课后辅导评分系统</h1>
+        <p>自动初评 · 人工复核 · 一键定稿</p>
+    </div>
+    <div class="container">
+        <h2 class="page-title">试卷列表</h2>
+        <div class="paper-grid">
+            {{range .papers}}
+            <a href="/paper/{{.ID}}" style="text-decoration: none; color: inherit;">
+                <div class="paper-card">
+                    <div class="subject">{{.Subject}}</div>
+                    <h3>{{.Name}}</h3>
+                    <p class="score">满分：{{.TotalScore}} 分</p>
+                    <p class="questions-count">共 {{len .Questions}} 道题</p>
+                </div>
+            </a>
+            {{end}}
+        </div>
+    </div>
+    <div class="footer">
+        自动评分系统 v1.0 · Go + Gin
+    </div>
+</body>
+</html>

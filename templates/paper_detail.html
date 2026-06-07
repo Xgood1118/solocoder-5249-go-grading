@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Paper.Name}} - 试卷详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f7fa; color: #333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 32px; }
+        .header h1 { font-size: 20px; font-weight: 600; }
+        .header .back { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 14px; margin-bottom: 8px; display: inline-block; }
+        .header .sub { opacity: 0.9; font-size: 13px; margin-top: 4px; }
+        .container { max-width: 1100px; margin: 24px auto; padding: 0 24px; }
+        .section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .section-title { font-size: 16px; font-weight: 600; color: #2d3748; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .section-title .icon { font-size: 20px; }
+        .progress-bar-container { background: #edf2f7; border-radius: 8px; height: 28px; overflow: hidden; margin-bottom: 16px; display: flex; }
+        .progress-bar { height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; transition: width 0.5s; }
+        .progress-initial { background: #f6ad55; }
+        .progress-review { background: #4fd1c5; }
+        .progress-final { background: #63b3ed; }
+        .progress-finished { background: #68d391; }
+        .progress-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .stat-card { padding: 14px; border-radius: 8px; text-align: center; }
+        .stat-card .num { font-size: 28px; font-weight: 700; }
+        .stat-card .label { font-size: 13px; color: #718096; margin-top: 4px; }
+        .stat-initial { background: #fffaf0; }
+        .stat-initial .num { color: #dd6b20; }
+        .stat-review { background: #e6fffa; }
+        .stat-review .num { color: #2c7a7b; }
+        .stat-final { background: #ebf8ff; }
+        .stat-final .num { color: #2b6cb0; }
+        .stat-finished { background: #f0fff4; }
+        .stat-finished .num { color: #2f855a; }
+        .queue-list { list-style: none; }
+        .queue-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 10px; margin-bottom: 8px; background: #f7fafc; transition: all 0.2s; }
+        .queue-item:hover { background: #edf2f7; transform: translateX(4px); }
+        .queue-item .student-info { display: flex; align-items: center; gap: 14px; }
+        .queue-item .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; }
+        .queue-item .name { font-weight: 600; color: #2d3748; font-size: 15px; }
+        .queue-item .class { font-size: 12px; color: #a0aec0; margin-top: 2px; }
+        .queue-item .score { font-weight: 700; color: #4a5568; font-size: 16px; }
+        .queue-item .stage-tag { padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 500; }
+        .tag-initial { background: #feebc8; color: #c05621; }
+        .tag-review { background: #c6f6d5; color: #276749; }
+        .tag-final { background: #bee3f8; color: #2a4365; }
+        .tag-finished { background: #e9d8fd; color: #553c9a; }
+        .btn { padding: 8px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+        .tab { padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 14px; background: #edf2f7; color: #718096; border: none; font-weight: 500; }
+        .tab.active { background: #667eea; color: white; }
+        .empty { text-align: center; padding: 48px; color: #a0aec0; font-size: 14px; }
+        .export-bar { display: flex; gap: 10px; align-items: center; }
+        .level-badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+        .level-excellent { background: #c6f6d5; color: #276749; }
+        .level-good { background: #bee3f8; color: #2b6cb0; }
+        .level-pass { background: #feebc8; color: #c05621; }
+        .level-fail { background: #fed7d7; color: #c53030; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back">← 返回试卷列表</a>
+        <h1>{{.Paper.Name}}</h1>
+        <p class="sub">科目：{{.Paper.Subject}} · 满分：{{.Paper.TotalScore}} 分 · 共 {{len .Paper.Questions}} 道题</p>
+    </div>
+    <div class="container">
+        <div class="section">
+            <h3 class="section-title"><span class="icon">📊</span>评分进度</h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar progress-initial" style="width:{{.Progress.InitialPercent}}%;">{{if gt .Progress.Initial 0}}{{.Progress.Initial}}{{end}}</div>
+                <div class="progress-bar progress-review" style="width:{{.Progress.ReviewPercent}}%;">{{if gt .Progress.Review 0}}{{.Progress.Review}}{{end}}</div>
+                <div class="progress-bar progress-final" style="width:{{.Progress.FinalPercent}}%;">{{if gt .Progress.Final 0}}{{.Progress.Final}}{{end}}</div>
+                <div class="progress-bar progress-finished" style="width:{{.Progress.FinishedPercent}}%;">{{if gt .Progress.Finished 0}}{{.Progress.Finished}}{{end}}</div>
+            </div>
+            <div class="progress-stats">
+                <div class="stat-card stat-initial">
+                    <div class="num">{{.Progress.Initial}}</div>
+                    <div class="label">待初评</div>
+                </div>
+                <div class="stat-card stat-review">
+                    <div class="num">{{.Progress.Review}}</div>
+                    <div class="label">待复核</div>
+                </div>
+                <div class="stat-card stat-final">
+                    <div class="num">{{.Progress.Final}}</div>
+                    <div class="label">待终评</div>
+                </div>
+                <div class="stat-card stat-finished">
+                    <div class="num">{{.Progress.Finished}}</div>
+                    <div class="label">已定稿</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 class="section-title" style="margin-bottom:0;"><span class="icon">📝</span>答卷列表</h3>
+                <div class="export-bar">
+                    <button class="btn btn-primary" onclick="exportCSV()">📥 导出成绩</button>
+                </div>
+            </div>
+            <div class="tabs">
+                <button class="tab active" onclick="filterStage('all', this)">全部 ({{.Progress.Total}})</button>
+                <button class="tab" onclick="filterStage('review', this)">待复核 ({{.Progress.Review}})</button>
+                <button class="tab" onclick="filterStage('final', this)">待终评 ({{.Progress.Final}})</button>
+                <button class="tab" onclick="filterStage('finished', this)">已定稿 ({{.Progress.Finished}})</button>
+            </div>
+            <ul class="queue-list" id="queue-list">
+                {{range .Submissions}}
+                <li class="queue-item" data-stage="{{.Submission.CurrentStage}}">
+                    <div class="student-info">
+                        <div class="avatar">{{index .Student.Name 0}}</div>
+                        <div>
+                            <div class="name">{{.Student.Name}}</div>
+                            <div class="class">{{.Student.Class}} · {{.Student.Grade}}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:16px;">
+                        {{if .IsFinished}}
+                        <div style="text-align:right;">
+                            <div class="score">{{.ScoreStr}} 分</div>
+                            <span class="level-badge level-excellent">{{.Submission.ScoreLevel}}</span>
+                        </div>
+                        {{else}}
+                        <div class="score">{{.ScoreStr}} 分</div>
+                        {{end}}
+                        <span class="stage-tag tag-{{.Submission.CurrentStage}}">
+                            {{if eq .Submission.CurrentStage "initial"}}待初评
+                            {{else if eq .Submission.CurrentStage "review"}}待复核
+                            {{else if eq .Submission.CurrentStage "final"}}待终评
+                            {{else}}已定稿{{end}}
+                        </span>
+                        <a href="/submission/{{.Submission.ID}}" class="btn btn-primary">批改</a>
+                    </div>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+
+        <div class="section" style="background: #f0fff4; border: 1px dashed #68d391;">
+            <h3 class="section-title" style="margin-bottom:8px;"><span class="icon">🔗</span>快捷链接</h3>
+            <p style="font-size:13px; color:#4a5568; line-height:1.8;">
+                支持通过 URL 直接跳转到指定学生的答卷：<br>
+                <code style="background:#fff; padding:4px 10px; border-radius:4px; font-size:12px;">
+                    /jump?paper_id={{.Paper.ID}}&student_id=学生ID
+                </code>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function filterStage(stage, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('#queue-list .queue-item').forEach(item => {
+                if (stage === 'all' || item.dataset.stage === stage) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function exportCSV() {
+            const paperId = '{{.Paper.ID}}';
+            fetch('/api/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paper_id: paperId, type: 'csv' })
+            }).then(r => r.json()).then(data => {
+                if (data.task_id) {
+                    checkExportStatus(data.task_id);
+                }
+            });
+        }
+
+        function checkExportStatus(taskId) {
+            let count = 0;
+            const check = () => {
+                fetch('/api/export/' + taskId).then(r => r.json()).then(task => {
+                    if (task.status === 'completed') {
+                        window.location.href = '/api/export/' + taskId + '/download';
+                    } else if (task.status === 'failed') {
+                        alert('导出失败');
+                    } else if (count < 30) {
+                        count++;
+                        setTimeout(check, 500);
+                    } else {
+                        alert('导出超时，请稍后在导出列表中查看');
+                    }
+                });
+            };
+            setTimeout(check, 300);
+        }
+    </script>
+</body>
+</html>

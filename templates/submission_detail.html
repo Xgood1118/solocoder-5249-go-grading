@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Student.Name}} - 答卷详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f7fa; color: #333; padding-bottom: 100px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 32px; }
+        .header .back { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; margin-bottom: 8px; display: inline-block; }
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .header .sub { opacity: 0.85; font-size: 13px; margin-top: 4px; }
+        .container { max-width: 900px; margin: 24px auto; padding: 0 24px; }
+        .info-bar { background: white; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .student-info { display: flex; align-items: center; gap: 16px; }
+        .avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 22px; }
+        .info-text .name { font-size: 19px; font-weight: 600; color: #2d3748; }
+        .info-text .meta { font-size: 13px; color: #718096; margin-top: 4px; }
+        .score-box { text-align: right; }
+        .score-box .total-score { font-size: 34px; font-weight: 700; color: #667eea; }
+        .score-box .full-score { color: #a0aec0; font-size: 14px; margin-left: 4px; }
+        .score-box .level { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-top: 6px; }
+        .level-excellent { background: #c6f6d5; color: #276749; }
+        .level-good { background: #bee3f8; color: #2b6cb0; }
+        .level-pass { background: #feebc8; color: #c05621; }
+        .level-fail { background: #fed7d7; color: #c53030; }
+        .stage-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+        .stage-initial { background: #feebc8; color: #c05621; }
+        .stage-review { background: #c6f6d5; color: #276749; }
+        .stage-final { background: #bee3f8; color: #2b6cb0; }
+        .stage-finished { background: #e9d8fd; color: #553c9a; }
+        .question-card { background: white; border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .question-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .question-title { flex: 1; }
+        .question-title .type-tag { display: inline-block; padding: 3px 10px; border-radius: 5px; font-size: 12px; background: #edf2f7; color: #4a5568; margin-right: 10px; font-weight: 500; }
+        .question-title .q-title { font-size: 15px; font-weight: 500; color: #2d3748; line-height: 1.7; }
+        .question-score-input { display: flex; align-items: center; gap: 8px; margin-left: 20px; min-width: 140px; justify-content: flex-end; }
+        .question-score-input input { width: 70px; padding: 8px 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 15px; text-align: center; font-weight: 700; color: #2d3748; }
+        .question-score-input input:focus { outline: none; border-color: #667eea; background: #f7fafc; }
+        .question-score-input input[readonly] { background: #f7fafc; color: #718096; cursor: not-allowed; }
+        .question-score-input .sep { color: #a0aec0; font-size: 14px; }
+        .question-score-input .full { color: #718096; font-size: 14px; }
+        .answer-box { background: #f7fafc; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+        .answer-box .label { font-size: 12px; color: #718096; margin-bottom: 6px; font-weight: 600; }
+        .answer-box .content { color: #2d3748; line-height: 1.7; font-size: 14px; white-space: pre-wrap; }
+        .reference-box { background: #f0fff4; border-radius: 8px; padding: 14px 18px; margin: 12px 0; border-left: 4px solid #68d391; }
+        .reference-box .label { font-size: 12px; color: #276749; margin-bottom: 6px; font-weight: 600; }
+        .reference-box .content { color: #276749; line-height: 1.7; font-size: 13px; white-space: pre-wrap; }
+        .keywords-box { margin: 10px 0; }
+        .keywords-box .label { font-size: 12px; color: #718096; margin-bottom: 6px; font-weight: 500; }
+        .keyword-tag { display: inline-block; padding: 4px 12px; border-radius: 14px; font-size: 12px; margin: 2px 4px 2px 0; font-weight: 500; }
+        .keyword-hit { background: #c6f6d5; color: #276749; }
+        .keyword-miss { background: #edf2f7; color: #a0aec0; }
+        .comment-input { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; resize: vertical; min-height: 60px; font-family: inherit; line-height: 1.6; }
+        .comment-input:focus { outline: none; border-color: #667eea; background: #f7fafc; }
+        .score-comment { font-size: 12px; color: #a0aec0; margin-top: 6px; }
+        .material-box { background: #fff5f5; border-radius: 8px; padding: 14px 18px; margin: 12px 0; border-left: 4px solid #fc8181; }
+        .material-box .label { font-size: 12px; color: #c53030; margin-bottom: 6px; font-weight: 600; }
+        .material-box .content { color: #742a2a; line-height: 1.7; font-size: 13px; white-space: pre-wrap; }
+        .options-list { margin: 10px 0; }
+        .option-item { padding: 5px 0; font-size: 14px; color: #4a5568; }
+        .option-item.correct { color: #38a169; font-weight: 500; }
+        .option-item.student-wrong { color: #e53e3e; text-decoration: line-through; }
+        .option-tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px; font-weight: 500; }
+        .tag-correct { background: #c6f6d5; color: #276749; }
+        .tag-student { background: #bee3f8; color: #2b6cb0; }
+        .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 16px 32px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); z-index: 100; }
+        .action-bar-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .action-bar .total { font-size: 16px; font-weight: 600; color: #2d3748; }
+        .action-bar .total .num { color: #667eea; font-size: 24px; font-weight: 700; margin: 0 4px; }
+        .action-buttons { display: flex; gap: 12px; }
+        .btn { padding: 11px 24px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; transform: translateY(-1px); }
+        .btn-secondary { background: #edf2f7; color: #4a5568; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; transform: translateY(-1px); }
+        .general-comment-box { background: white; border-radius: 12px; padding: 20px 24px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .general-comment-box .label { font-size: 14px; color: #2d3748; font-weight: 600; margin-bottom: 10px; }
+        .score-records { background: white; border-radius: 12px; padding: 20px 24px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .score-record-item { padding: 12px 0; border-bottom: 1px dashed #edf2f7; }
+        .score-record-item:last-child { border-bottom: none; }
+        .score-record-item .record-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .score-record-item .stage { font-weight: 600; font-size: 14px; }
+        .score-record-item .score { color: #667eea; font-weight: 700; }
+        .score-record-item .meta { font-size: 12px; color: #a0aec0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/paper/{{.Paper.ID}}" class="back">← 返回试卷</a>
+        <h1>{{.Paper.Name}}</h1>
+        <p class="sub">{{.Paper.Subject}} · 满分 {{.Paper.TotalScore}} 分 · 共 {{len .Paper.Questions}} 道题</p>
+    </div>
+
+    <div class="container">
+        <div class="info-bar">
+            <div class="student-info">
+                <div class="avatar">{{.StudentNameInit}}</div>
+                <div class="info-text">
+                    <div class="name">{{.Student.Name}}</div>
+                    <div class="meta">{{.Student.Class}} · {{.Student.Grade}} · 学号 {{.Student.ID}}</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:24px;">
+                <span class="stage-badge stage-{{.Submission.CurrentStage}}">
+                    {{if eq .Submission.CurrentStage "initial"}}待初评
+                    {{else if eq .Submission.CurrentStage "review"}}待复核
+                    {{else if eq .Submission.CurrentStage "final"}}待终评
+                    {{else}}已定稿{{end}}
+                </span>
+                <div class="score-box">
+                    <div><span class="total-score" id="total-score">{{.FinalScoreStr}}</span><span class="full-score">/ {{.Paper.TotalScore}}</span></div>
+                    {{if .IsFinished}}
+                    <span class="level level-{{.LevelClass}}">{{.Submission.ScoreLevel}}</span>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        {{range $idx, $q := .QuestionItems}}
+        <div class="question-card">
+            <div class="question-header">
+                <div class="question-title">
+                    <span class="type-tag">{{$q.TypeLabel}}</span>
+                    <span class="q-title">{{$q.Index}}. {{$q.Title}}</span>
+                </div>
+                <div class="question-score-input">
+                    <input type="number" step="0.5" min="0" max="{{$q.FullScore}}" 
+                           data-qid="{{$q.ID}}" value="{{$q.ScoreStr}}"
+                           onchange="updateScore('{{$q.ID}}', this.value)"
+                           {{if $q.ReadOnly}}readonly{{end}}>
+                    <span class="sep">/</span>
+                    <span class="full">{{$q.FullScore}}</span>
+                </div>
+            </div>
+
+            {{if $q.Material}}
+            <div class="material-box">
+                <div class="label">📖 阅读材料</div>
+                <div class="content">{{$q.Material}}</div>
+            </div>
+            {{end}}
+
+            {{if $q.Options}}
+            <div class="options-list">
+                {{range $opt := $q.Options}}
+                <div class="option-item {{if $opt.IsCorrect}}correct{{end}} {{if and $opt.IsStudent (not $opt.IsCorrect)}}student-wrong{{end}}">
+                    <strong>{{$opt.Label}}.</strong> {{$opt.Text}}
+                    {{if $opt.IsCorrect}}<span class="option-tag tag-correct">正确答案</span>{{end}}
+                    {{if $opt.IsStudent}}<span class="option-tag tag-student">学生选择</span>{{end}}
+                </div>
+                {{end}}
+            </div>
+            {{end}}
+
+            {{if $q.StudentAnswer}}
+            <div class="answer-box">
+                <div class="label">✍️ 学生答案</div>
+                <div class="content">{{$q.StudentAnswer}}</div>
+            </div>
+            {{end}}
+
+            {{if $q.Keywords}}
+            <div class="keywords-box">
+                <div class="label">🏷️ 关键词：</div>
+                {{range $kw := $q.Keywords}}
+                <span class="keyword-tag {{if $kw.Hit}}keyword-hit{{else}}keyword-miss{{end}}">
+                    {{$kw.Text}}{{if $kw.Hit}} ✓{{end}}
+                </span>
+                {{end}}
+            </div>
+            {{end}}
+
+            {{if $q.ReferenceAnswer}}
+            <div class="reference-box">
+                <div class="label">📚 参考答案</div>
+                <div class="content">{{$q.ReferenceAnswer}}</div>
+            </div>
+            {{end}}
+
+            {{if $q.AutoComment}}
+            <div class="score-comment">💡 自动评分说明：{{$q.AutoComment}}</div>
+            {{end}}
+
+            {{if not $q.ReadOnly}}
+            <div style="margin-top:14px;">
+                <div class="label" style="font-size:12px; color:#718096; margin-bottom:6px; font-weight:500;">教师评语</div>
+                <textarea class="comment-input" data-qid="{{$q.ID}}" placeholder="输入对此题的评语...">{{$q.TeacherComment}}</textarea>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+
+        {{if not .ReadOnly}}
+        <div class="general-comment-box">
+            <div class="label">📝 总体评语</div>
+            <textarea class="comment-input" id="general-comment" placeholder="输入对整份答卷的总体评语..." style="min-height:80px;">{{.GeneralComment}}</textarea>
+        </div>
+        {{end}}
+    </div>
+
+    <div class="action-bar">
+        <div class="action-bar-inner">
+            <div class="total">
+                总分：<span class="num" id="action-total">{{.FinalScoreStr}}</span> / {{.Paper.TotalScore}} 分
+            </div>
+            <div class="action-buttons">
+                {{if .CanReview}}
+                <button class="btn btn-primary" onclick="submitGrade('review')">提交复核</button>
+                {{else if .CanFinal}}
+                <button class="btn btn-secondary" onclick="saveDraft()">保存草稿</button>
+                <button class="btn btn-success" onclick="submitGrade('final')">终评定稿</button>
+                {{else}}
+                <span style="color:#a0aec0; font-size:13px;">答卷已定稿，无法修改</span>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const submissionId = '{{.Submission.ID}}';
+        const currentStage = '{{.Submission.CurrentStage}}';
+        const fullScores = {};
+        
+        {{range .QuestionItems}}
+        fullScores['{{.ID}}'] = {{.FullScore}};
+        {{end}}
+
+        function updateScore(qid, value) {
+            let score = parseFloat(value) || 0;
+            const full = fullScores[qid] || 0;
+            if (score < 0) score = 0;
+            if (score > full) {
+                score = full;
+                document.querySelector(`input[data-qid="${qid}"]`).value = full.toFixed(1);
+            }
+            recalculateTotal();
+        }
+
+        function recalculateTotal() {
+            let total = 0;
+            document.querySelectorAll('input[data-qid]').forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            document.getElementById('total-score').textContent = total.toFixed(1);
+            document.getElementById('action-total').textContent = total.toFixed(1);
+        }
+
+        function collectScores() {
+            const scores = [];
+            document.querySelectorAll('input[data-qid]').forEach(input => {
+                const qid = input.getAttribute('data-qid');
+                const score = parseFloat(input.value) || 0;
+                scores.push({ question_id: qid, score: score, full_score: fullScores[qid] });
+            });
+            return scores;
+        }
+
+        function collectComments() {
+            const comments = {};
+            document.querySelectorAll('textarea.comment-input[data-qid]').forEach(ta => {
+                const qid = ta.getAttribute('data-qid');
+                comments[qid] = ta.value;
+            });
+            return comments;
+        }
+
+        function submitGrade(stage) {
+            if (!confirm(`确定要提交${stage === 'final' ? '终评' : '复核'}吗？提交后将进入下一阶段。`)) {
+                return;
+            }
+
+            const scores = collectScores();
+            const comments = collectComments();
+            const generalComment = document.getElementById('general-comment').value;
+
+            const questionScores = scores.map(s => {
+                return {
+                    question_id: s.question_id,
+                    score: s.score,
+                    full_score: s.full_score,
+                    comment: comments[s.question_id] || ''
+                };
+            });
+
+            fetch(`/api/submissions/${submissionId}/grade/${stage}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question_scores: questionScores,
+                    comment: generalComment,
+                    teacher: 'teacher_01'
+                })
+            }).then(r => r.json()).then(data => {
+                if (data.error) {
+                    alert('提交失败：' + data.error);
+                } else {
+                    alert('提交成功！');
+                    window.location.reload();
+                }
+            }).catch(err => {
+                alert('提交出错：' + err);
+            });
+        }
+
+        function saveDraft() {
+            alert('草稿已保存（演示版本）');
+        }
+    </script>
+</body>
+</html>

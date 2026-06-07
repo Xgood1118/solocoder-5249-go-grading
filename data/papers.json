@@ -1,0 +1,134 @@
+[
+  {
+    "id": "paper_midterm_2026q2",
+    "name": "2026年第二季度期中综合测试",
+    "subject": "高中生物",
+    "total_score": 100,
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single_choice",
+        "title": "下列哪种细胞器被称为细胞的\"动力工厂\"？",
+        "full_score": 4,
+        "options": ["A. 内质网", "B. 高尔基体", "C. 线粒体", "D. 叶绿体"],
+        "correct_answer": "C"
+      },
+      {
+        "id": "q2",
+        "type": "single_choice",
+        "title": "DNA分子的双螺旋结构中，碱基配对原则是？",
+        "full_score": 4,
+        "options": ["A. A-G, T-C", "B. A-T, G-C", "C. A-C, G-T", "D. A-U, G-C"],
+        "correct_answer": "B"
+      },
+      {
+        "id": "q3",
+        "type": "multiple_choice",
+        "title": "下列属于真核生物的有？",
+        "full_score": 6,
+        "options": ["A. 大肠杆菌", "B. 酵母菌", "C. 噬菌体", "D. 草履虫", "E. 蓝藻"],
+        "correct_answer": ["B", "D"]
+      },
+      {
+        "id": "q4",
+        "type": "multiple_choice",
+        "title": "光合作用的光反应阶段发生的场所和产物包括？",
+        "full_score": 6,
+        "options": ["A. 叶绿体基质", "B. 类囊体薄膜", "C. 产生O2", "D. 产生ATP", "E. 固定CO2"],
+        "correct_answer": ["B", "C", "D"]
+      },
+      {
+        "id": "q5",
+        "type": "fill_blank",
+        "title": "植物细胞特有的细胞器是____和____。",
+        "full_score": 4,
+        "correct_answer": ["叶绿体", "液泡"]
+      },
+      {
+        "id": "q6",
+        "type": "fill_blank",
+        "title": "遗传密码的特点包括____、____、简并性和通用性。",
+        "full_score": 4,
+        "correct_answer": ["方向性", "连续性"]
+      },
+      {
+        "id": "q7",
+        "type": "true_false",
+        "title": "所有酶的化学本质都是蛋白质。",
+        "full_score": 3,
+        "correct_answer": false
+      },
+      {
+        "id": "q8",
+        "type": "true_false",
+        "title": "细胞凋亡是由基因决定的细胞自动结束生命的过程。",
+        "full_score": 3,
+        "correct_answer": true
+      },
+      {
+        "id": "q9",
+        "type": "short_answer",
+        "title": "简述细胞膜的流动镶嵌模型的主要内容。",
+        "full_score": 10,
+        "keywords": ["磷脂双分子层", "蛋白质", "流动", "镶嵌", "糖蛋白", "选择透过性"]
+      },
+      {
+        "id": "q10",
+        "type": "essay",
+        "title": "论述光合作用和呼吸作用的区别与联系，并说明两者在生态系统碳循环中的作用。",
+        "full_score": 15,
+        "keywords": ["光合作用", "呼吸作用", "叶绿体", "线粒体", "有机物", "能量", "碳循环", "CO2", "O2"],
+        "reference_answer": "光合作用和呼吸作用是生物体内两个重要的代谢过程。光合作用发生在叶绿体中，利用光能将二氧化碳和水合成有机物，释放氧气，储存能量；呼吸作用主要发生在线粒体中，分解有机物释放能量，产生二氧化碳和水。两者相互依存，光合作用为呼吸作用提供有机物和氧气，呼吸作用为光合作用提供二氧化碳。在生态系统的碳循环中，植物通过光合作用吸收大气中的二氧化碳，将碳固定在有机物中；生物通过呼吸作用分解有机物，释放二氧化碳回到大气中，形成碳循环。光合作用和呼吸作用共同维持了生物圈的碳氧平衡。",
+        "min_length": 50
+      },
+      {
+        "id": "q11",
+        "type": "material_analysis",
+        "title": "根据材料分析回答问题：该实验证明了什么？请解释实验原理。",
+        "full_score": 15,
+        "material": "格里菲斯的肺炎双球菌转化实验：将无毒性的R型活细菌与加热杀死的S型细菌混合后注入小鼠体内，小鼠死亡，并从死亡小鼠体内分离出了有毒性的S型活细菌。",
+        "keywords": ["肺炎双球菌", "转化", "遗传物质", "DNA", "蛋白质", "S型", "R型"],
+        "reference_answer": "该实验证明了加热杀死的S型细菌中存在某种转化因子，能够使R型细菌转化为S型细菌。实验原理是：S型细菌有毒性，能使小鼠死亡；R型细菌无毒性。加热杀死的S型细菌失去活性，但其遗传物质（DNA）仍然保持活性。当R型细菌与加热杀死的S型细菌混合后，S型细菌的DNA进入R型细菌体内，指导R型细菌合成S型细菌的物质，使其转化为有毒性的S型细菌。这个实验为后来艾弗里证明DNA是遗传物质奠定了基础。",
+        "min_length": 50
+      },
+      {
+        "id": "q12",
+        "type": "short_answer",
+        "title": "什么是细胞分化？细胞分化有什么特点？",
+        "full_score": 8,
+        "keywords": ["细胞分化", "形态", "结构", "功能", "稳定性", "持久性", "基因选择性表达"]
+      },
+      {
+        "id": "q13",
+        "type": "single_choice",
+        "title": "abacus 这个词的中文意思是？",
+        "full_score": 2,
+        "options": ["A. 算盘", "B. 数学", "C. 计算机", "D. 计算器"],
+        "correct_answer": "A"
+      }
+    ]
+  },
+  {
+    "id": "paper_final_2026q2",
+    "name": "2026年第二季度期末综合测试",
+    "subject": "高中数学",
+    "total_score": 120,
+    "questions": [
+      {
+        "id": "m1",
+        "type": "single_choice",
+        "title": "函数 f(x) = x² - 2x + 1 的最小值是？",
+        "full_score": 5,
+        "options": ["A. -1", "B. 0", "C. 1", "D. 2"],
+        "correct_answer": "B"
+      },
+      {
+        "id": "m2",
+        "type": "short_answer",
+        "title": "简述等差数列的通项公式和前n项和公式。",
+        "full_score": 10,
+        "keywords": ["等差数列", "通项公式", "前n项和", "公差", "首项"]
+      }
+    ]
+  }
+]
